@@ -8,6 +8,13 @@ import re
 
 from langsmith import traceable
 
+# baseline 정규식(장애|진단|다운|지연|급증|incident|티켓)은 "느려요/타임아웃/메모리" 같은
+# 흔한 증상 표현을 놓쳐 eval 셋 incident 19건 중 18건을 chat으로 보냈다(before-fake.json).
+_INCIDENT_PATTERN = re.compile(
+    r"장애|진단|다운|지연|급증|느려|느린|타임아웃|시간 초과|에러|오류|실패|죽은|끊|"
+    r"부족|꽉|가득|누수|증가|올라가|치솟|튀었|경고|알림|OOM|GC|CPU|메모리|디스크|504|"
+    r"incident|티켓|-service|web-\d+", re.IGNORECASE)
+
 
 class FakeLLM:
     def __init__(self, name: str, usd_per_1k_tokens: float):
@@ -24,14 +31,14 @@ class FastLLM(FakeLLM):
     """분류·계획 등 짧고 정형적인 단계 전담 (저비용)."""
 
     @traceable(run_type="llm", name="fast_llm.route")
-    def route(self, query: str) -> tuple[dict, dict]:
+    async def route(self, query: str) -> tuple[dict, dict]:
         """Wave 5 — 쿼리 라우팅. 장애 관련이면 incident 파이프라인, 아니면 chat 직행."""
-        incident = bool(re.search(r"장애|진단|다운|지연|급증|incident|티켓", query))
+        incident = bool(_INCIDENT_PATTERN.search(query))
         result = {"route": "incident" if incident else "chat", "needs_analysis": False}
         return result, self._usage(query, str(result))
 
     @traceable(run_type="llm", name="fast_llm.plan")
-    def plan(self, query: str, procedure_prompt: str) -> tuple[dict, dict]:
+    async def plan(self, query: str, procedure_prompt: str) -> tuple[dict, dict]:
         """Wave 4 — Plan/Task 분해. MCP Prompt가 준 표준 절차를 따라 계획을 세운다.
 
         Wave 6 재현: needs_analysis=False라고 스스로 판단해 놓고도 analysis task를
@@ -51,7 +58,7 @@ class FastLLM(FakeLLM):
         return result, self._usage(query + procedure_prompt, str(result))
 
     @traceable(run_type="llm", name="fast_llm.analyze")
-    def analyze(self, collected: list[dict]) -> tuple[str, dict]:
+    async def analyze(self, collected: list[dict]) -> tuple[str, dict]:
         """Wave 6 보완 — 여러 시스템의 monitoring 결과 사이에 공통 패턴이 있는지 비교."""
         mon = [c["data"] for c in collected if c["source"] == "monitoring"]
         degraded = [d["system_name"] for d in mon if d.get("status") != "healthy"]

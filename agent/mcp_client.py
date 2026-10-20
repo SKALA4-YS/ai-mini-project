@@ -1,6 +1,9 @@
 """Wave 2 — MCP 서버 여러 개를 subprocess(stdio)로 1회씩 기동해 재사용하는 클라이언트.
 
 Wave 1의 교훈대로 서버(lifespan)에서 한 번만 연결을 만들고 모든 요청이 공유한다.
+ClientSession은 JSON-RPC 요청 id로 응답을 짝지으므로 한 세션에 동시 요청을 보내도
+안전하다 — baseline에 있던 전역 asyncio.Lock은 research 노드의 asyncio.gather 병렬
+조회와 동시 접속 요청들을 MCP 구간에서 다시 한 줄로 세우고 있어 제거했다.
 Wave 9 데모용으로, 프로세스 최초의 get_monitoring_status 호출 1회는 일부러
 asyncio.TimeoutError를 던진다(transient) — with_retry가 backoff 후 복구해야 한다.
 
@@ -47,7 +50,6 @@ class MCPClient:
         self._server_scripts = server_scripts or DEFAULT_SERVER_SCRIPTS
         self._stack: AsyncExitStack | None = None
         self.sessions: dict[str, ClientSession] = {}
-        self._lock = asyncio.Lock()
         self._flaky_pending = flaky_first_tool_call   # Wave 9 시뮬레이션
 
     async def start(self) -> None:
@@ -72,14 +74,12 @@ class MCPClient:
         if self._flaky_pending and name == "get_monitoring_status":
             self._flaky_pending = False
             raise asyncio.TimeoutError("simulated transient timeout (Wave 9 demo)")
-        async with self._lock:
-            result = await self.sessions[server].call_tool(name, arguments)
+        result = await self.sessions[server].call_tool(name, arguments)
         return json.loads(result.content[0].text)
 
     @traceable(run_type="tool", name="mcp.list_resource_templates")
     async def list_resource_templates(self, server: str) -> list:
-        async with self._lock:
-            result = await self.sessions[server].list_resource_templates()
+        result = await self.sessions[server].list_resource_templates()
         return _attr(result, "resourceTemplates", "resource_templates")
 
     @traceable(run_type="tool", name="mcp.find_resource_template")
@@ -95,14 +95,12 @@ class MCPClient:
 
     @traceable(run_type="tool", name="mcp.read_resource")
     async def read_resource(self, uri: str, server: str) -> str:
-        async with self._lock:
-            result = await self.sessions[server].read_resource(uri)
+        result = await self.sessions[server].read_resource(uri)
         return result.contents[0].text
 
     @traceable(run_type="tool", name="mcp.list_prompts")
     async def list_prompts(self, server: str) -> list:
-        async with self._lock:
-            result = await self.sessions[server].list_prompts()
+        result = await self.sessions[server].list_prompts()
         return result.prompts
 
     @traceable(run_type="tool", name="mcp.find_prompt")
@@ -117,6 +115,5 @@ class MCPClient:
 
     @traceable(run_type="tool", name="mcp.get_prompt")
     async def get_prompt(self, name: str, arguments: dict, server: str = "ops") -> str:
-        async with self._lock:
-            result = await self.sessions[server].get_prompt(name, arguments)
+        result = await self.sessions[server].get_prompt(name, arguments)
         return result.messages[0].content.text
