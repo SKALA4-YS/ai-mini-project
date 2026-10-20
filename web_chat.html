@@ -115,14 +115,18 @@
 const { createApp, ref, reactive, nextTick } = Vue;
 
 const STEP_LABELS = {
-  PlanCreated: e => `계획 수립: 할 일 ${e.task_count}가지${e.targets?.length ? ` (시스템: ${e.targets.join(', ')})` : ''}`,
+  PlanCreated: e => `계획 수립: 할 일 ${e.task_count}가지${e.targets?.length ? ` (시스템: ${e.targets.join(', ')})` : ''}`
+      + (e.dropped_targets?.length ? ` · 언급 안 된 ${e.dropped_targets.join(', ')} 조사 제외` : ''),
   GateApplied: e => e.removed_analysis_tasks ? `불필요한 작업 ${e.removed_analysis_tasks}건 제거` : null,
   TaskCompleted: e => (e.source === 'monitoring'
       ? `모니터링 지표 확인 (시스템: ${e.target})`
       : `대응 매뉴얼(runbook) 조회 (장애유형: ${e.target})`) + (e.retries ? ' (재시도 성공)' : ''),
-  ReplanCheck: e => e.is_sufficient ? null : `정보 부족 → 장애유형 "${e.target}"로 추가 조사`,
+  ReplanCheck: e => e.is_sufficient ? null : `정보 부족 → 장애유형 "${e.target}"로 추가 조사`
+      + (e.method === 'rag' ? ` (RAG 유사도 ${e.score})` : e.method ? ` (${e.method})` : ''),
   DraftWritten: e => `답변 초안 작성 (시도 ${e.attempt})`,
-  Validation: e => e.verdict === '합격' ? '검수 통과' : '검수 반려 → 다시 작성',
+  Validation: e => e.verdict === '합격' ? '검수 통과'
+      : e.verdict.startsWith('합격') ? '검수 최대 시도 도달 → 통과 처리'
+      : `검수 반려 → 다시 작성${e.problems?.length ? ` (${e.problems[0]})` : ''}`,
   Finalize: () => '최종 답변 완성',
 };
 

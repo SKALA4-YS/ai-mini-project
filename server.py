@@ -6,6 +6,8 @@
 - Wave 3  : GET /chat/stream — 그래프 실행 과정을 SSE 이벤트로 스트리밍
 - Wave 12 : 대화 이력을 SQLite(session.db)에 저장 — 재시작해도 유지
 - Wave 14 : SUPERVISOR_VERSION(v1/v2) 환경변수로 legacy/신형 파이프라인 즉시 전환
+- RAG     : RunbookRetriever를 lifespan에서 1회 색인해 deps.retriever로 주입
+            (RAG_ENABLED=0이면 미주입 → baseline 키워드 규칙, RAG_EMBEDDER=openai|hash)
 - LangSmith: 요청당 chat_request 루트 run 아래로 노드·LLM·MCP 호출이 계층 기록됨
 """
 import json
@@ -26,6 +28,8 @@ from agent.deps import SupervisorDeps
 from agent.fake_llm import FastLLM, QualityLLM
 from agent.graph import build_graph
 from agent.mcp_client import MCPClient
+from agent.rag.embedder import HashEmbedder, OpenAIEmbedder
+from agent.rag.retriever import RunbookRetriever
 from agent.session_store import SqliteSessionStore
 from agent.supervisor_v1 import run_v1
 
@@ -59,27 +63,51 @@ def _build_llms():
     return backend, fast, quality
 
 
+async def _build_retriever(backend: str) -> RunbookRetriever | None:
+    """RAG_ENABLED=0이면 None(키워드 규칙). 임베더 기본값은 openai 백엔드일 때만
+    OpenAI 임베딩, 그 외(fake/ollama)는 네트워크 없는 해시 임베딩."""
+    if os.environ.get("RAG_ENABLED", "1") == "0":
+        return None
+    kind = os.environ.get("RAG_EMBEDDER", "openai" if backend == "openai" else "hash")
+    retriever = RunbookRetriever(OpenAIEmbedder() if kind == "openai" else HashEmbedder())
+    await retriever.build()
+    return retriever
+
+
+async def create_deps(session_store=None) -> SupervisorDeps:
+    """lifespan과 eval/run_eval.py가 공유하는 조립 함수 — 운영과 평가가 같은 deps를 쓴다."""
+    mcp = MCPClient()
+    await mcp.start()   # Wave 2 — MCP subprocess는 서버 수명 동안 딱 1개
+    backend, fast_llm, quality_llm = _build_llms()
+    return SupervisorDeps(
+        fast_llm=fast_llm,
+        quality_llm=quality_llm,
+        mcp=mcp,
+        session_store=session_store or SqliteSessionStore(),
+        version=os.environ.get("SUPERVISOR_VERSION", "v2"),
+        retriever=await _build_retriever(backend),
+    )
+
+
+async def close_deps(deps: SupervisorDeps) -> None:
+    await deps.mcp.stop()
+    for llm in (deps.fast_llm, deps.quality_llm):
+        if hasattr(llm, "aclose"):
+            await llm.aclose()
+    deps.session_store.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global CREATION_COUNT
     CREATION_COUNT += 1
-    mcp = MCPClient()
-    await mcp.start()   # Wave 2 — MCP subprocess는 서버 수명 동안 딱 1개
-    backend, fast_llm, quality_llm = _build_llms()
-    app.state.llm_backend = backend
-    deps = SupervisorDeps(
-        fast_llm=fast_llm,
-        quality_llm=quality_llm,
-        mcp=mcp,
-        session_store=SqliteSessionStore(),
-        version=os.environ.get("SUPERVISOR_VERSION", "v2"),
-    )
+    deps = await create_deps()
+    app.state.llm_backend = os.environ.get("LLM_BACKEND", "fake")
     app.state.deps = deps
     app.state.graph = build_graph(deps) if deps.version == "v2" else None
     app.state.instance_id = id(deps)
     yield
-    await mcp.stop()
-    deps.session_store.close()
+    await close_deps(deps)
     try:   # 종료 전 LangSmith 배치 전송 플러시 — kill 시 run이 pending으로 남는 것 방지
         from langchain_core.tracers.langchain import wait_for_all_tracers
         wait_for_all_tracers()
@@ -97,7 +125,9 @@ async def health():
             "supervisor_version": app.state.deps.version,
             "llm_backend": app.state.llm_backend,
             "fast_llm": app.state.deps.fast_llm.name,
-            "quality_llm": app.state.deps.quality_llm.name}
+            "quality_llm": app.state.deps.quality_llm.name,
+            "retriever": (app.state.deps.retriever.embedder.name
+                          if app.state.deps.retriever else "keyword-rules")}
 
 
 @app.get("/version")
@@ -114,6 +144,7 @@ def _metadata(result: dict, run_id: str | None) -> dict:
         "retry_count": result.get("retry_count", 0),
         "parallel_elapsed": result.get("parallel_elapsed"),
         "validation_attempts": result.get("validation_attempts", 0),
+        "incident_type": result.get("incident_type"),
         "cost_usd": result.get("cost_usd", 0.0),
         "llm_backend": app.state.llm_backend,
         "supervisor_version": app.state.deps.version,
