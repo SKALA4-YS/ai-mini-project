@@ -1,0 +1,30 @@
+{
+  "_comment": "Before/After 공통 평가셋. subset=aligned: 모니터링 알림 문구만 봐도 유형이 드러나는 케이스 / symptom: 사용자가 말한 증상이 알림에 드러나지 않는 케이스 / multi: 여러 시스템이 섞인 케이스. expected_incident_type은 사용자가 서술한 증상 기준으로 라벨링했다.",
+  "incident": [
+    {"id": "i01", "subset": "aligned", "query": "payments-service 결제 응답이 느려지고 CPU가 치솟았어요, 원인 확인해주세요", "expected_incident_type": "cpu-spike"},
+    {"id": "i02", "subset": "aligned", "query": "cache-service 메모리 사용률이 계속 올라가고 있어요", "expected_incident_type": "memory-leak"},
+    {"id": "i03", "subset": "aligned", "query": "log-service 디스크 공간이 부족하다는 알림이 왔어요", "expected_incident_type": "disk-full"},
+    {"id": "i04", "subset": "aligned", "query": "로그인 응답이 느려요, 원인 확인해주세요", "expected_incident_type": "high-latency"},
+    {"id": "i05", "subset": "aligned", "query": "auth-service p95 지연이 2초를 넘었어요", "expected_incident_type": "high-latency"},
+    {"id": "i06", "subset": "aligned", "query": "cache-service 힙 메모리가 한계에 도달했어요", "expected_incident_type": "memory-leak"},
+    {"id": "i07", "subset": "aligned", "query": "log-service /var/log 파티션이 꽉 찼어요", "expected_incident_type": "disk-full"},
+    {"id": "i08", "subset": "aligned", "query": "gateway-service 패킷 손실이 생기고 504 에러가 나요", "expected_incident_type": "network-timeout"},
+    {"id": "i09", "subset": "aligned", "query": "payments-service 인스턴스 CPU 사용률이 90%를 넘었어요", "expected_incident_type": "cpu-spike"},
+    {"id": "i10", "subset": "aligned", "query": "gateway-service 뒤쪽 upstream 연결이 끊기고 응답이 안 와요", "expected_incident_type": "network-timeout"},
+    {"id": "m01", "subset": "multi", "query": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요", "expected_incident_type": "network-timeout"},
+    {"id": "m02", "subset": "multi", "query": "auth-service랑 log-service 둘 다 이상한데 로그 디스크가 꽉 찬 것 같아요", "expected_incident_type": "disk-full"},
+    {"id": "m03", "subset": "multi", "query": "payments-service CPU 말고 cache-service 메모리 누수 쪽을 먼저 봐주세요", "expected_incident_type": "memory-leak"},
+    {"id": "s01", "subset": "symptom", "query": "auth-service DB 연결이 전부 실패하고 있어요, 데이터베이스가 죽은 것 같아요", "expected_incident_type": "db-down"},
+    {"id": "s02", "subset": "symptom", "query": "payments-service에서 DB connection refused 에러가 쏟아져요", "expected_incident_type": "db-down"},
+    {"id": "s03", "subset": "symptom", "query": "web-01 서버 디스크 사용률 경고가 떴어요", "expected_incident_type": "disk-full"},
+    {"id": "s04", "subset": "symptom", "query": "web-01에서 외부 API 호출이 계속 타임아웃 나요", "expected_incident_type": "network-timeout"},
+    {"id": "s05", "subset": "symptom", "query": "web-01 메모리가 재시작 후에도 계속 증가해요", "expected_incident_type": "memory-leak"},
+    {"id": "s06", "subset": "symptom", "query": "web-01 CPU가 갑자기 100% 가까이 튀었어요", "expected_incident_type": "cpu-spike"}
+  ],
+  "chat": [
+    {"id": "c01", "query": "안녕, 너는 누구야?"},
+    {"id": "c02", "query": "오늘 점심 메뉴 추천해줘"},
+    {"id": "c03", "query": "제 이름은 민수입니다"}
+  ],
+  "concurrency_query": "payments-service 결제 응답이 느려지고 CPU가 치솟았어요, 원인 확인해주세요"
+}

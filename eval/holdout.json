@@ -1,0 +1,17 @@
+{
+  "_comment": "RAG 파라미터(가중치·임계값)·runbook 증상 문구를 정한 뒤에는 수정하지 않는 holdout 셋. 튜닝 과정에서 결과를 보고 고치지 않았다.",
+  "incident": [
+    {"id": "h01", "subset": "aligned", "query": "cache-service 컨테이너가 OOMKilled로 계속 재시작돼요", "expected_incident_type": "memory-leak"},
+    {"id": "h02", "subset": "aligned", "query": "payments-service 노드 load average가 엄청 높아요", "expected_incident_type": "cpu-spike"},
+    {"id": "h03", "subset": "aligned", "query": "log-service에서 No space left on device 에러가 나요", "expected_incident_type": "disk-full"},
+    {"id": "h04", "subset": "aligned", "query": "auth-service 토큰 발급 API가 3초씩 걸려요", "expected_incident_type": "high-latency"},
+    {"id": "h05", "subset": "aligned", "query": "gateway-service가 백엔드 호출할 때 응답을 못 받고 끊겨요", "expected_incident_type": "network-timeout"},
+    {"id": "h06", "subset": "multi", "query": "auth-service는 괜찮은 것 같고 cache-service 쪽 GC가 너무 자주 돌아요", "expected_incident_type": "memory-leak"},
+    {"id": "h07", "subset": "multi", "query": "payments-service와 gateway-service 사이 구간에서 504가 계속 떠요", "expected_incident_type": "network-timeout"},
+    {"id": "h08", "subset": "symptom", "query": "web-01이 primary DB에 접속을 못 하고 있어요", "expected_incident_type": "db-down"},
+    {"id": "h09", "subset": "symptom", "query": "auth-service 로그 파티션 사용률이 97%예요", "expected_incident_type": "disk-full"},
+    {"id": "h10", "subset": "symptom", "query": "web-01 페이지 로딩이 평소보다 몇 배 느려졌어요", "expected_incident_type": "high-latency"},
+    {"id": "h11", "subset": "symptom", "query": "payments-service가 외부 PG사 API를 호출하면 시간 초과가 나요", "expected_incident_type": "network-timeout"},
+    {"id": "h12", "subset": "symptom", "query": "log-service 메모리가 하루 종일 조금씩 계속 올라가요", "expected_incident_type": "memory-leak"}
+  ]
+}
