@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>AI Mini-Project 발표</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --ink: #111418; --ink-2: #4b5058; --ink-3: #8a8f98;
+    --line: #e3e5e8; --soft: #f4f6f8; --surface: #ffffff;
+    --accent: #2a78d6; --accent-soft: #e8f1fb;
+    --before: #a7abb2; --bad: #c2410c; --bad-soft: #fdf0e9;
+    --good: #0f7a4f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--surface); color: var(--ink);
+    font-family: "Apple SD Gothic Neo", "Nanum Gothic", sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 1280px; height: 720px; padding: 56px 72px 48px; position: relative;
+    page-break-after: always; overflow: hidden; display: flex; flex-direction: column; }
+  .slide:last-child { page-break-after: auto; }
+  .kicker { font-size: 15px; font-weight: 700; letter-spacing: .08em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: 36px; line-height: 1.25; margin: 0 0 26px; font-weight: 800; letter-spacing: -.01em; }
+  h2 { font-size: 21px; margin: 0 0 12px; font-weight: 800; }
+  p, li { font-size: 18px; line-height: 1.55; color: var(--ink-2); }
+  ul { margin: 0; padding-left: 22px; } li { margin: 4px 0; }
+  b, strong { color: var(--ink); }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: .88em; background: var(--soft);
+    padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 22px; display: flex;
+    justify-content: space-between; font-size: 12px; color: var(--ink-3); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; background: var(--surface); }
+  .card.soft { background: var(--soft); border-color: transparent; }
+  .card.bad { background: var(--bad-soft); border-color: transparent; }
+  .card.acc { background: var(--accent-soft); border-color: transparent; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    background: var(--soft); color: var(--ink-2); margin-right: 6px; }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .tag.acc { background: var(--accent-soft); color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; font-size: 16px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+  th { color: var(--ink-3); font-weight: 700; font-size: 13px; letter-spacing: .04em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.win { color: var(--ink); font-weight: 800; }
+  td.lose { color: var(--bad); font-weight: 700; }
+  .big { font-size: 54px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); line-height: 1; }
+  .big small { font-size: 22px; font-weight: 700; color: var(--ink-3); margin-left: 4px; }
+  .stat-label { font-size: 15px; color: var(--ink-2); margin-top: 10px; }
+  .stat-from { font-size: 15px; color: var(--ink-3); margin-top: 4px; }
+  pre { font-family: "SF Mono", Menlo, monospace; font-size: 14px; line-height: 1.55; margin: 0;
+    background: var(--soft); border-radius: 10px; padding: 16px 18px; color: var(--ink); white-space: pre; }
+  /* 막대 차트 — Before(회색)·After(파랑) 2계열, 값은 직접 라벨 */
+  .bars { display: flex; flex-direction: column; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 14px; }
+  .bar-row .lbl { font-size: 15px; color: var(--ink-2); text-align: right; }
+  .bar-pair { display: flex; flex-direction: column; gap: 4px; }
+  .bar { height: 18px; border-radius: 0 4px 4px 0; display: flex; align-items: center; }
+  .bar.b { background: var(--before); } .bar.a { background: var(--accent); }
+  .bar span { font-size: 13px; font-weight: 700; color: var(--ink); margin-left: calc(100% + 8px); white-space: nowrap; }
+  .legend { display: flex; gap: 18px; font-size: 14px; color: var(--ink-2); margin-bottom: 14px; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; }
+  .node { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--surface); color: var(--ink); font-weight: 700; }
+  .node.hot { border: 2px solid var(--bad); color: var(--bad); background: var(--bad-soft); }
+  .arrow { color: var(--ink-3); }
+  .title-slide { justify-content: center; }
+  .title-slide h1 { font-size: 52px; margin-bottom: 18px; }
+  .title-slide .sub { font-size: 22px; color: var(--ink-2); }
+  .pill-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 34px; }
+  /* 화면 캡처 */
+  .shot { display: block; border-radius: 8px; border: 1px solid var(--line); max-width: 100%; }
+  .cap { font-size: 13px; color: var(--ink-3); margin-top: 6px; line-height: 1.4; }
+  .cap b { color: var(--ink-2); }
+  .tech td { font-size: 15px; padding: 7px 10px; vertical-align: top; }
+  .tech td:first-child { font-weight: 800; color: var(--ink); white-space: nowrap; }
+  .tech td:last-child { font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--ink-3); }
+  .callout { font-size: 15px; line-height: 1.5; color: var(--ink-2); margin: 0 0 12px; }
+  .callout b { color: var(--ink); }
+  .num-badge { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: 13px; font-weight: 800; text-align: center; line-height: 22px; margin-right: 8px; }
+  .section-no { color: var(--ink-3); font-weight: 800; margin-right: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 1. 표지 -->
+<section class="slide title-slide">
+  <div class="kicker">SKALA AI Mini-Project · 과제 1 — Base AI Agent 개선</div>
+  <h1>장애유형을 "증상"으로 이해하는<br>인시던트 대응 에이전트</h1>
+  <p class="sub">RAG 분류 · 비동기 동시성 · 과잉 조사 차단 · 수치 근거 검증 — 같은 입력으로 Before/After 실측</p>
+  <div class="pill-row">
+    <span class="tag acc">Multi-Agent</span><span class="tag acc">MCP</span><span class="tag acc">RAG</span>
+    <span class="tag acc">의존성 주입</span><span class="tag acc">LangSmith</span><span class="tag acc">모듈화</span>
+    <span class="tag acc">단위 테스트 24</span>
+  </div>
+  <p style="margin-top:56px;font-size:17px;color:var(--ink-3)">광주 1반 · G007 · 나용성 · 2026.10</p>
+</section>
+
+<!-- 2. 주제 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">1</span>주제</div>
+  <h1>운영 장애 질문에 진단·대응 절차를 답하는 에이전트</h1>
+  <div class="flow" style="margin-bottom:22px">
+    <span class="node">route</span><span class="arrow">→</span>
+    <span class="node">plan</span><span class="arrow">→</span>
+    <span class="node">gate</span><span class="arrow">→</span>
+    <span class="node">research ×N</span><span class="arrow">→</span>
+    <span class="node">replan_check</span><span class="arrow">→</span>
+    <span class="node">analysis</span><span class="arrow">→</span>
+    <span class="node">write</span><span class="arrow">→</span>
+    <span class="node">validate</span><span class="arrow">→</span>
+    <span class="node">finalize</span>
+  </div>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;align-items:start">
+    <div class="card soft">
+      <h2>무엇을 하나</h2>
+      <p style="margin:0">"auth-service DB가 죽은 것 같아요" 같은 질문을 받으면<br>
+      ① MCP Tool로 <b>모니터링 지표</b>를 조회하고<br>
+      ② 장애유형을 정해 MCP Resource로 <b>대응 매뉴얼(runbook)</b>을 읽고<br>
+      ③ 지표·매뉴얼만 근거로 <b>진단과 대응 절차</b>를 답한다.</p>
+      <p style="margin:14px 0 0">FastAPI + LangGraph, SSE로 진행 단계를 실시간 표시한다.</p>
+    </div>
+    <div>
+      <h2>원본(baseline)에서 찾은 약점</h2>
+      <table>
+        <tr><td><b>분류</b></td><td>알림 키워드 순서로 장애유형 결정 — <b>사용자 증상 무시</b></td><td class="num lose">정확도 42.1%</td></tr>
+        <tr><td><b>동시성</b></td><td>async 안에서 동기 HTTP + MCP 전역 Lock</td><td class="num lose">동시 5건 = 1건×5</td></tr>
+        <tr><td><b>계획</b></td><td>언급 안 된 시스템까지 조사 → 알림 혼입</td><td class="num lose">최대 6개 조회</td></tr>
+        <tr><td><b>검증</b></td><td>"30자 + 1) 포함"만 확인</td><td class="num lose">수치 날조 통과</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>원본 = git tag baseline · 개선 = main</span><span>2</span></div>
+</section>
+
+<!-- 3. 기능 개선 사항 및 추가 포인트 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">2</span>기능 개선 사항 · 추가 포인트</div>
+  <h1>개선 5가지 + 추가 3가지</h1>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr">
+    <table>
+      <tr><th style="white-space:nowrap">개선</th><th>무엇을</th><th style="white-space:nowrap;text-align:right">결과</th></tr>
+      <tr><td style="white-space:nowrap"><b>① RAG 분류</b></td><td>키워드 규칙 → runbook 임베딩 의미 검색 (+폴백)</td><td class="num win">42% → 100%</td></tr>
+      <tr><td style="white-space:nowrap"><b>② 동시성</b></td><td>AsyncClient · MCP Lock 제거 · 실제 토큰 스트리밍</td><td class="num win">처리량 3.6배</td></tr>
+      <tr><td style="white-space:nowrap"><b>③ Plan 보정</b></td><td>언급 안 된 시스템 조사를 코드로 차단</td><td class="num win">1.53 → 1.16개</td></tr>
+      <tr><td style="white-space:nowrap"><b>④ 수치 검증</b></td><td>초안 숫자가 수집 사실에 없으면 반려·재작성</td><td class="num">LLM 비용 0</td></tr>
+      <tr><td style="white-space:nowrap"><b>⑤ 모듈화</b></td><td><code>graph.py</code> → <code>nodes/</code>·<code>rag/</code>, 백엔드 중복 → <code>llm_common.py</code></td><td class="num" style="white-space:nowrap">배선/구현 분리</td></tr>
+    </table>
+    <div>
+      <div class="card acc" style="margin-bottom:12px"><h2>＋ 평가 하네스</h2><p style="margin:0">원본·개선판을 <b>같은 코드로</b> 측정. holdout 12문항, LLM-judge, TTFT, 동시성</p></div>
+      <div class="card acc" style="margin-bottom:12px"><h2>＋ 단위 테스트 24개</h2><p style="margin:0">stub 주입, 1.4초, 네트워크 0. 정규식 버그 1건을 잡아냄</p></div>
+      <div class="card acc"><h2>＋ 판단 근거 표시</h2><p style="margin:0">웹 UI에 RAG 유사도·제외한 시스템·반려 사유 노출</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>doc/IMPROVEMENTS.md §2</span><span>3</span></div>
+</section>
+
+<!-- 4. 사용 기술 요소 맵 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">3</span>사용한 기술 요소</div>
+  <h1>원본에 있던 것 / 내가 개선·추가한 것</h1>
+  <table class="tech">
+    <tr><th>기술</th><th>원본</th><th>개선 · 추가</th><th>위치</th></tr>
+    <tr><td>Multi-Agent</td><td>Supervisor(route) → Planner가 task를 <code>research</code>/<code>analysis</code> 에이전트에 배정 → Writer → Validator</td><td>research 워커 N개가 <b>실제로 동시 실행</b>되게 async화, Planner 출력을 코드로 보정</td><td>agent/nodes/*</td></tr>
+    <tr><td>MCP</td><td>Tool·Resource·Prompt 3종, stdio, <code>find_*</code>로 서버 탐색</td><td><b>전역 Lock 제거</b> — 세션이 요청 id로 응답을 짝지어 동시 호출 가능</td><td>mcp_client.py</td></tr>
+    <tr><td>RAG</td><td>없음 (키워드 규칙)</td><td><b>신규</b> — runbook 34청크 임베딩, 증상 0.75 + 알림 0.25, 폴백</td><td>agent/rag/</td></tr>
+    <tr><td>의존성 주입</td><td><code>SupervisorDeps</code> + <code>partial</code></td><td>retriever 주입 · <code>create_deps</code> 팩토리 · <code>RAG_ENABLED</code> 스위치 · 테스트 stub</td><td>deps.py · server.py</td></tr>
+    <tr><td>LangSmith</td><td>노드별 <code>@traceable</code></td><td>검색 단계를 <code>run_type="retriever"</code>로 추가, 후보 점수 기록</td><td>rag/retriever.py</td></tr>
+    <tr><td>모듈화</td><td><code>graph.py</code> 한 파일, 프롬프트 복붙 3곳</td><td>배선만 남기고 <code>nodes/</code> 6 · <code>rag/</code> 4 · 공용 <code>llm_common.py</code></td><td>agent/</td></tr>
+    <tr><td>단위 테스트</td><td>없음</td><td><b>신규 24개</b> — 그래프 e2e · 병렬성 · RAG 폴백 3경로 · 회귀</td><td>tests/</td></tr>
+    <tr><td>스트리밍</td><td>완성된 답을 한 번에 전달</td><td>OpenAI <code>stream=True</code> → 토큰 단위 SSE 중계</td><td>openai_llm.py</td></tr>
+  </table>
+  <div class="foot"><span>각 기술의 실제 동작 화면은 다음 장부터</span><span>4</span></div>
+</section>
+
+<!-- 5. RAG -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">3</span>기술 ① RAG — 구현 화면</div>
+  <h1>증상을 1순위 근거로 runbook을 검색한다</h1>
+  <div class="grid2" style="grid-template-columns:0.82fr 1.18fr;gap:24px;align-items:start">
+<pre style="font-size:13px">data/runbooks/*.md (6종)
+ └ chunk → [제목+대표 증상] 1개
+           [제목+절차 한 줄] N개
+           metadata.incident_type
+     │ text-embedding-3-small
+     ▼ (디스크 캐시)
+ InMemoryVectorStore · 34청크 · 코사인
+
+score(유형)
+  = 0.75 × sim(사용자 증상)
+  + 0.25 × sim(언급된 시스템 알림)
+ → 1등 유형
+
+score &lt; 0.25 · API 오류
+ → 키워드 규칙 폴백 (멈추지 않음)</pre>
+    <div>
+      <img class="shot" src="captures/term_classifier.png" style="width:100%">
+      <p class="cap"><b>실행 캡처</b> — 튜닝에 쓰지 않은 holdout 12문항, LLM 없이 분류기만 비교. 키워드 규칙 <b>50.0%</b> → RAG <b>83.3%</b>. h10·h11은 RAG도 틀림(한계 장에서 설명)</p>
+    </div>
+  </div>
+  <div class="foot"><span>agent/rag/{embedder, vector_store, retriever, keyword}.py · nodes/replan.py</span><span>5</span></div>
+</section>
+
+<!-- 6. 스트리밍 이벤트 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">3</span>기술 ② Multi-Agent · MCP · 스트리밍 — 구현 화면</div>
+  <h1>에이전트가 무엇을 근거로 판단했는지 이벤트로 남긴다</h1>
+  <img class="shot" src="captures/term_sse.png" style="height:405px;width:auto">
+  <p class="cap"><b>실행 캡처</b> — 개선판 <code>/chat/stream</code> SSE 원본 출력. AnswerToken 이벤트와 각 줄의 <code>node</code> 필드, 최종 답변 본문은 생략</p>
+  <div class="grid3" style="margin-top:14px;gap:16px">
+    <p class="callout"><span class="num-badge">1</span><b>PlanCreated</b> — Planner가 고른 6개 시스템 중 질문에 없는 5개를 <code>dropped_targets</code>로 제외</p>
+    <p class="callout"><span class="num-badge">2</span><b>ReplanCheck</b> — RAG가 <code>db-down</code> 선택(0.4357). 상위 3후보 점수까지 전달</p>
+    <p class="callout"><span class="num-badge">3</span><b>TaskCompleted</b> — MCP Tool(monitoring, 재시도 1회 성공) · MCP Resource(runbook) 조회</p>
+  </div>
+  <div class="foot"><span>curl -sN -G localhost:8111/chat/stream (LLM_BACKEND=openai)</span><span>6</span></div>
+</section>
+
+<!-- 7. 모듈화 · DI · 테스트 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">3</span>기술 ③ 모듈화 · 의존성 주입 · 단위 테스트</div>
+  <h1>배선과 구현을 나누고, stub 주입만으로 그래프를 테스트한다</h1>
+  <div class="grid2" style="grid-template-columns:0.8fr 1.2fr;gap:24px">
+    <div>
+<pre style="font-size:13px">agent/
+├ graph.py      배선만 (노드·분기)
+├ deps.py       SupervisorDeps
+├ state.py · systems.py
+├ llm_common.py 프롬프트·plan 정규화
+├ grounding.py  수치 근거 검사
+├ nodes/  route plan research
+│         replan analysis write
+└ rag/    embedder vector_store
+          retriever keyword</pre>
+      <div class="card acc" style="margin-top:14px;padding:16px 18px"><p style="margin:0;font-size:15px"><code>build_graph(deps)</code>가 <code>partial(fn, deps=deps)</code>로 모든 노드에 주입한다. 테스트는 <code>StubMCP</code>·fake LLM·<code>HashEmbedder</code>를 넣은 deps 하나로 그래프 전체를 돌린다.</p></div>
+    </div>
+    <div>
+      <img class="shot" src="captures/term_pytest.png" style="width:100%">
+      <p class="cap"><b>실행 캡처</b> — 24개 전부 통과, 1.4초, 외부 네트워크 호출 0</p>
+    </div>
+  </div>
+  <div class="foot"><span>tests/{conftest, test_rules, test_rag, test_graph}.py</span><span>7</span></div>
+</section>
+
+<!-- 8. 최종 실행 화면 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">3</span>최종 실행 화면</div>
+  <h1>웹 채팅 — 복수 시스템 질문</h1>
+  <div class="grid2" style="grid-template-columns:1.25fr 0.75fr;gap:24px">
+    <img class="shot" src="captures/after_2.png" style="height:520px;width:auto">
+    <div style="padding-top:6px">
+      <p class="callout"><span class="num-badge">1</span><b>계획 수립</b> — 질문에 나온 gateway·payments만 조사, auth-service는 제외</p>
+      <p class="callout"><span class="num-badge">2</span><b>모니터링 ×2</b> — research 워커 2개가 MCP Tool을 동시에 호출</p>
+      <p class="callout"><span class="num-badge">3</span><b>RAG 판정</b> — network-timeout (유사도 0.4277). 원본은 CPU 알림에 끌려 cpu-spike</p>
+      <p class="callout"><span class="num-badge">4</span><b>검수 통과</b> — 답변 속 수치가 모두 수집된 지표·알림에 있어 반려 없이 1회 통과</p>
+      <p class="callout"><span class="num-badge">5</span><b>최종 답변</b> — 토큰 단위로 흘러나오며 1)~3) 형식</p>
+      <p class="cap" style="margin-top:18px">LLM_BACKEND=openai (gpt-4o-mini / gpt-4o) · web_demo_server → server.py</p>
+    </div>
+  </div>
+  <div class="foot"><span>doc/presentation/captures/after_2.png</span><span>8</span></div>
+</section>
+
+<!-- 9. Before / After 같은 입력 화면 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">4</span>Before / After — 같은 입력</div>
+  <h1>"DB가 죽은 것 같아요" → 원본은 지연 매뉴얼, 개선판은 DB 매뉴얼</h1>
+  <div class="grid2" style="gap:24px">
+    <div>
+      <div style="margin-bottom:8px"><span class="tag bad">Before · baseline</span> 장애유형 <b style="color:var(--bad)">high-latency</b> (오답)</div>
+      <img class="shot" src="captures/before_1.png" style="width:100%">
+      <p class="cap">알림의 "p95 latency" 키워드가 먼저 걸려 지연 대응 절차(캐시·읽기 복제본)를 안내</p>
+    </div>
+    <div>
+      <div style="margin-bottom:8px"><span class="tag acc">After · main</span> 장애유형 <b style="color:var(--accent)">db-down</b> (RAG 0.4357)</div>
+      <img class="shot" src="captures/after_1.png" style="width:100%">
+      <p class="cap">사용자 증상으로 DB 장애 매뉴얼을 골라 failover 절차를 안내. 언급 안 된 5개 시스템 조사 제외</p>
+    </div>
+  </div>
+  <div class="foot"><span>같은 OpenAI 모델·같은 MCP 서버, 코드만 다름 (captures/before_1.png · after_1.png)</span><span>9</span></div>
+</section>
+
+<!-- 10. Before / After 지표 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">4</span>Before / After — 수치</div>
+  <h1>정확도 42% → 100%, 동시 처리량 3.6배 — 나빠진 지표까지</h1>
+  <div class="grid2" style="grid-template-columns:1.2fr 0.8fr;gap:24px">
+    <div>
+      <img class="shot" src="captures/term_report.png" style="width:100%">
+      <p class="cap"><b>실행 캡처</b> — 평가셋 22문항을 원본·개선판에 같은 하네스로 실행한 결과 집계</p>
+    </div>
+    <div>
+      <div class="card acc" style="margin-bottom:12px;padding:16px 20px"><div class="big" style="font-size:44px">83.3<small>%</small></div><div class="stat-label">holdout 분류 정확도 (키워드 50.0%)</div><div class="stat-from">평가셋 100%는 편향 가능 → 실성능은 이 값으로 본다</div></div>
+      <div class="card soft" style="margin-bottom:12px;padding:16px 20px"><h2 style="margin-bottom:6px">좋아진 것</h2><p style="margin:0;font-size:15px">judge 진단 적합성 4.42→4.89 · TTFT −0.81s · 조사 시스템 수 −0.37</p></div>
+      <div class="card bad" style="padding:16px 20px"><h2 style="margin-bottom:6px">나빠진 · 그대로인 것</h2><p style="margin:0;font-size:15px">단건 지연 +0.17s · 비용 +17% · judge 수치 근거 −0.26<br>검수 시도·재시도 횟수는 변화 없음 (1.00 / 0.05)</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>eval/run_eval.py · eval/report.py → doc/results.md</span><span>10</span></div>
+</section>
+
+<!-- 11. Before / After 동시성 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">4</span>Before / After — 동시 요청</div>
+  <h1>같은 질문 5건 동시 전송: 18.38s → 5.31s</h1>
+  <div class="grid2" style="gap:24px;flex:none">
+    <div>
+      <div style="margin-bottom:8px"><span class="tag bad">Before</span> 단건의 <b style="color:var(--bad)">4.0배</b> — 한 줄로 서서 처리</div>
+      <img class="shot" src="captures/term_conc_before.png" style="width:100%">
+    </div>
+    <div>
+      <div style="margin-bottom:8px"><span class="tag acc">After</span> 단건의 <b style="color:var(--accent)">1.1배</b> — 동시에 처리</div>
+      <img class="shot" src="captures/term_conc_after.png" style="width:100%">
+    </div>
+  </div>
+<p style="margin:14px 0 8px;font-size:16px">평가 하네스(그래프 직접 호출, 22문항 셋)에서도 23.95s → 6.74s, <b>3.6배</b>로 같은 경향이다.</p>
+<pre style="font-size:13px"># 원인 (baseline)  openai_llm.py: async 노드 안에서 동기 httpx.post → 이벤트 루프 정지
+#                  mcp_client.py: async with self._lock → 모든 MCP 호출 직렬화
+# 수정            httpx.AsyncClient + await, Lock 제거 (ClientSession이 요청 id로 응답 매칭)</pre>
+  <div class="foot"><span>eval/concurrency_demo.py — HTTP 서버 전체 경유, 워밍업 1회 제외 · 단건은 순차 3회 평균</span><span>11</span></div>
+</section>
+
+<!-- 12. 한계 · 트레이드오프 -->
+<section class="slide">
+  <div class="kicker"><span class="section-no">5</span>한계 · 트레이드오프</div>
+  <h1>개선이 새로 만든 비용과 약점</h1>
+  <div class="grid2" style="gap:16px">
+    <div class="card"><h2>지연 · 비용 ↔ 정확도</h2><p style="margin:0;font-size:16px">임베딩 1회로 <b>단건 +0.17s</b>, runbook 증상 섹션만큼 프롬프트가 길어져 <b>비용 +17%</b>. 정확도를 위해 감수했다.</p></div>
+    <div class="card"><h2>평가셋 편향</h2><p style="margin:0;font-size:16px">평가셋과 증상 문구를 같은 사람이 썼다. 의미를 모르는 <b>해시 임베딩도 100%</b>가 나와서, 실성능은 holdout <b>83.3%</b>로 본다.</p></div>
+    <div class="card"><h2>RAG 오분류 · 경험값</h2><p style="margin:0;font-size:16px">"느림"과 "시간 초과"가 임베딩 공간에서 가깝다(h10·h11). 가중치 0.75/0.25·임계값 0.25는 <b>최적화한 값이 아니다</b>.</p></div>
+    <div class="card"><h2>검증의 한계</h2><p style="margin:0;font-size:16px">수치 검사는 문자열 매칭이라 2.4s↔2400ms를 놓친다. LLM-judge는 "데이터 없음"이라는 정직한 답을 감점했다(2건).</p></div>
+    <div class="card"><h2>차단의 부작용</h2><p style="margin:0;font-size:16px">언급 안 된 시스템 차단은 <b>보고 싶던 연관 시스템까지</b> 막을 수 있다. 공유 stdio MCP 서버 1개가 다음 병목이다.</p></div>
+    <div class="card soft"><h2>다음 단계</h2><p style="margin:0;font-size:16px">점수 차가 작을 때만 LLM이 6개 유형에서 재판정 · LangSmith Dataset으로 실험 비교 · 재시작 제안 전 <code>interrupt()</code> 승인</p></div>
+  </div>
+  <div class="foot"><span>감사합니다 · github.com/SKALA4-YS/ai-mini-project</span><span>12</span></div>
+</section>
+
+</body>
+</html>

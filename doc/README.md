@@ -9,6 +9,28 @@ Wave 1~15가 각각 증명한 패턴(싱글턴·MCP·SSE·라우팅·게이트·
 `fake`(결정론)/`ollama`(로컬 실모델)/`openai`(실제 API) 세 백엔드 중 아무거나 꽂을 수 있고,
 요청 한 건이 처리되는 전 과정은 LangSmith에 계층 트리로 기록·평가·피드백된다.
 
+> **미니 프로젝트 개선판** — RAG 기반 장애유형 분류, 노드 모듈화, 비동기 LLM 호출·실제 토큰
+> 스트리밍, 수치 근거 검증, 평가 하네스·단위 테스트를 추가했다. 문제→개선→Before/After 수치→
+> 한계는 [IMPROVEMENTS.md](IMPROVEMENTS.md), 비교표 원본은 [results.md](results.md).
+> 원본 코드는 git tag `baseline`.
+
+| 지표 (OpenAI 백엔드) | Before | After |
+|---|---|---|
+| 장애유형 분류 정확도 (dataset / holdout) | 42.1% / 50.0% | **100% / 83.3%** |
+| 동시 5건 처리 시간 | 23.95s | **6.74s** (3.6배) |
+| 첫 토큰까지 (TTFT) | 5.49s | **4.68s** |
+| 진단 적합성 (LLM-judge, 1~5) | 4.42 | **4.89** |
+
+```bash
+.venv/bin/pytest -q tests                                        # 단위 테스트 24개
+LLM_BACKEND=openai .venv/bin/python -m eval.run_eval --label after-openai   # 평가
+```
+
+| 환경변수 | 기본값 | 의미 |
+|---|---|---|
+| `RAG_ENABLED` | `1` | `0`이면 retriever 미주입 → 원본 키워드 규칙 |
+| `RAG_EMBEDDER` | openai 백엔드면 `openai`, 그 외 `hash` | 임베딩 백엔드 (`hash`는 네트워크 없는 결정론) |
+
 ## 주요 실행 방법
 
 **맨 처음 한 번만**: 이 폴더를 처음 받았다면(학생 배포 등) `.venv`부터 만든다.
@@ -57,11 +79,11 @@ flowchart TB
         Plan --> Gate["gate"]
         Gate --> Research["research"]
         Research --> ReplanCheck["replan_check"]
-        ReplanCheck -->|부족| Research
+        ReplanCheck -->|"부족 — RAG로 runbook 유형 결정"| Research
         ReplanCheck -->|충분| Analysis["analysis<br/>(task 없으면 내부 스킵)"]
         Analysis --> Write["write"]
         Write --> Validate["validate"]
-        Validate -->|불합격| Write
+        Validate -->|"불합격 (형식·근거 없는 수치)"| Write
         Validate -->|합격| Finalize["finalize"]
     end
 
@@ -84,6 +106,8 @@ flowchart TB
     Lifespan --> Deps["SupervisorDeps"]
     Deps --> LLM["fast_llm / quality_llm<br/>(fake · ollama · openai 중 택1)"]
     Deps --> Session["SqliteSessionStore<br/>(session.db)"]
+    Deps --> Retriever["RunbookRetriever (RAG)<br/>embedder + InMemoryVectorStore<br/>실패 시 키워드 규칙 폴백"]
+    ReplanCheck -.-> Retriever
 
     Graph --> Trace["LangSmith<br/>(계층 트리 trace · Dataset 평가 · Feedback)"]
 ```
@@ -207,8 +231,14 @@ all_total_vue/
 ├── .env.example
 │
 ├── agent/
-│   ├── deps.py              # SupervisorDeps 의존성 주입
-│   ├── graph.py              # v2 LangGraph StateGraph (route/plan/gate/research/replan_check/analysis/write/validate/finalize)
+│   ├── deps.py              # SupervisorDeps 의존성 주입 (+ retriever)
+│   ├── graph.py              # v2 LangGraph StateGraph 배선만 (노드 구현은 nodes/)
+│   ├── state.py              # AgentState + 비용 누적 헬퍼
+│   ├── systems.py            # 모니터링 대상 시스템 목록 (단일 출처)
+│   ├── llm_common.py         # ollama/openai 공용 프롬프트·route 파싱·plan 정규화
+│   ├── grounding.py          # validator용 수치 근거 검사
+│   ├── nodes/                # route · plan(gate) · research · replan · analysis · write(validate/finalize)
+│   ├── rag/                  # embedder(openai/hash) · vector_store · retriever · keyword(폴백)
 │   ├── supervisor_v1.py      # legacy 선형 파이프라인 (버전 토글 대상)
 │   ├── fake_llm.py           # LLM_BACKEND=fake — 결정론적 fast/quality 모델 (route/plan/analyze/chat/write)
 │   ├── ollama_llm.py         # LLM_BACKEND=ollama — 로컬 실모델 백엔드
@@ -226,6 +256,9 @@ all_total_vue/
 │       ├── high-latency.md
 │       ├── memory-leak.md
 │       └── network-timeout.md
+│
+├── eval/                      # Before/After 평가 하네스 (run_eval · compare_classifier · report · dataset/holdout · results/)
+├── tests/                     # pytest 단위 테스트 (stub deps 주입, 네트워크 불필요)
 │
 ├── sh/                        # 실행 스크립트 모음 (학생 배포용 — 내부 회귀 테스트 스크립트는 제외)
 │   ├── setup_venv.sh            # .venv 생성 + requirements.txt 설치 (맨 처음 1회)
