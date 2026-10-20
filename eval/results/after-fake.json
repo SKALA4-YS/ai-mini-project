@@ -1,0 +1,1093 @@
+{
+  "summary": {
+    "label": "after-fake",
+    "llm_backend": "fake",
+    "route_accuracy": 1,
+    "incident_type_accuracy": 1,
+    "incident_type_accuracy_by_subset": {
+      "aligned": 1,
+      "multi": 1,
+      "symptom": 1
+    },
+    "incident_latency_mean_s": 0.7682,
+    "incident_latency_p50_s": 0.748,
+    "incident_cost_mean_usd": 0.0006,
+    "validation_attempts_mean": 2,
+    "research_parallel_elapsed_mean_s": 0.3584,
+    "ungrounded_answer_rate": 0,
+    "research_tasks_mean": 1.9474,
+    "judge_grounding_mean": null,
+    "judge_relevance_mean": null,
+    "concurrency": {
+      "n": 5,
+      "wall_s": 0.802,
+      "per_request_s": 0.16
+    },
+    "stream": {
+      "ttft_mean_s": 0.74,
+      "total_mean_s": 0.7453
+    }
+  },
+  "rows": [
+    {
+      "id": "i01",
+      "subset": "aligned",
+      "query": "payments-service 결제 응답이 느려지고 CPU가 치솟았어요, 원인 확인해주세요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "cpu-spike",
+      "runbook_types": [
+        "cpu-spike"
+      ],
+      "type_ok": true,
+      "latency_s": 1.165,
+      "cost_usd": 0.00067,
+      "validation_attempts": 2,
+      "retry_count": 1,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "payments-service",
+            "status": "degraded",
+            "cpu_percent": 91.7,
+            "memory_percent": 55.3,
+            "last_checked": "2026-10-20T09:41:57.128121",
+            "alerts": [
+              "CPU 91% (threshold 80%)",
+              "payments-service-3 instance responding slow"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 32.7,
+            "memory_percent": 47.3,
+            "last_checked": "2026-10-20T09:41:57.425656",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: CPU 급증 대응 절차\n\n## 대표 증상\nCPU 사용률이 평소보다 급격히 높아지고 임계치(80%)를 넘어 지속된다. 특정 인스턴스가 연산 부하로 느려지고, 트래픽 증가·배포 직후·배치 중복 실행과 함께 나타나는 경우가 많다. 키워드: CPU 급증, CPU 100%, 연산 부하, 스로틀링, load average 상승.\n\n## 대응 절차\n1. get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.\n2. 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.\n3. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n4. 급증이 특정 배포 직후 시작됐다면 직전 배포를 롤백하고 원인 분석은 별도로 진행한다.\n5. 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드를 식별해 최적화 작업을 등록한다.\n"
+        }
+      ],
+      "final": "'payments-service 결제 응답이 느려지고 CPU가 치솟았어요, 원인 확인해주세요' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 91.7% (알림 2건) · web-01 상태=healthy, CPU 32.7% (알림 0건) 2) 표준 절차: 'Runbook: CPU 급증 대응 절차'에 따라 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i02",
+      "subset": "aligned",
+      "query": "cache-service 메모리 사용률이 계속 올라가고 있어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "memory-leak",
+      "runbook_types": [
+        "memory-leak"
+      ],
+      "type_ok": true,
+      "latency_s": 0.741,
+      "cost_usd": 0.000617,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "cache-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "cache-service",
+            "status": "degraded",
+            "cpu_percent": 47.1,
+            "memory_percent": 91.6,
+            "last_checked": "2026-10-20T09:41:58.170759",
+            "alerts": [
+              "memory usage climbing steadily over 6h",
+              "heap near limit"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 35.1,
+            "memory_percent": 48.6,
+            "last_checked": "2026-10-20T09:41:58.171277",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 메모리 누수(Memory Leak) 대응 절차\n\n## 대표 증상\n메모리 사용률이 시간이 지날수록 꾸준히 증가하고 재시작해도 다시 차오른다. 힙 사용량이 한계에 가까워지고 GC가 자주 돌며 결국 OOM으로 프로세스가 죽는다. 키워드: 메모리 누수, 메모리 증가, heap, OOM, GC 과다.\n\n## 대응 절차\n1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다.\n4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다.\n5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'cache-service 메모리 사용률이 계속 올라가고 있어요' 진단 결과: 1) 모니터링: cache-service 상태=degraded, CPU 47.1% (알림 2건) · web-01 상태=healthy, CPU 35.1% (알림 0건) 2) 표준 절차: 'Runbook: 메모리 누수(Memory Leak) 대응 절차'에 따라 OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i03",
+      "subset": "aligned",
+      "query": "log-service 디스크 공간이 부족하다는 알림이 왔어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "disk-full",
+      "runbook_types": [
+        "disk-full"
+      ],
+      "type_ok": true,
+      "latency_s": 0.746,
+      "cost_usd": 0.000602,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "log-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "log-service",
+            "status": "degraded",
+            "cpu_percent": 20.8,
+            "memory_percent": 35.4,
+            "last_checked": "2026-10-20T09:41:58.912862",
+            "alerts": [
+              "disk usage 95% on /var/log",
+              "disk space low"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 39.4,
+            "memory_percent": 50.7,
+            "last_checked": "2026-10-20T09:41:58.913014",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 디스크 용량 부족 대응 절차\n\n## 대표 증상\n디스크나 파티션 사용률이 90% 이상으로 차서 쓰기 작업이 실패하거나 경고가 발생한다. 로그·임시 파일·백업이 공간을 잠식하며, No space left on device 오류가 나타난다. 키워드: 디스크 부족, 디스크 가득, 용량 경고, /var/log 파티션.\n\n## 대응 절차\n1. get_monitoring_status와 서버 디스크 사용률을 확인해 임계 수준(90% 이상)인지 판단한다.\n2. 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n3. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다.\n4. 임시 조치로도 부족하면 볼륨을 확장하거나 추가 스토리지를 연결한다.\n5. 정상화 후 로그 보존 정책과 디스크 사용률 알림 임계값을 재검토해 조기에 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'log-service 디스크 공간이 부족하다는 알림이 왔어요' 진단 결과: 1) 모니터링: log-service 상태=degraded, CPU 20.8% (알림 2건) · web-01 상태=healthy, CPU 39.4% (알림 0건) 2) 표준 절차: 'Runbook: 디스크 용량 부족 대응 절차'에 따라 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i04",
+      "subset": "aligned",
+      "query": "로그인 응답이 느려요, 원인 확인해주세요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "high-latency",
+      "runbook_types": [
+        "high-latency"
+      ],
+      "type_ok": true,
+      "latency_s": 0.745,
+      "cost_usd": 0.000561,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "auth-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "auth-service",
+            "status": "degraded",
+            "cpu_percent": 77.2,
+            "memory_percent": 60.6,
+            "last_checked": "2026-10-20T09:41:59.658296",
+            "alerts": [
+              "p95 latency 2.4s (threshold 1.0s)",
+              "connection pool 92% used"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 37.4,
+            "memory_percent": 49.7,
+            "last_checked": "2026-10-20T09:41:59.658459",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 응답 지연(High Latency) 대응 절차\n\n## 대표 증상\n요청 자체는 성공하지만 응답 시간이 길어진다. p95/p99 지연시간이 임계치를 넘고, 커넥션 풀이 고갈되거나 느린 쿼리가 쌓이면서 사용자가 화면이 느리다고 체감한다. 키워드: 응답 지연, 느린 응답, latency, 커넥션 풀 고갈, 로그인이 느림.\n\n## 대응 절차\n1. get_monitoring_status로 p95 지연시간과 커넥션 풀 사용률을 확인한다.\n2. 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다.\n3. 지연이 특정 리전/인스턴스에 몰려 있으면 해당 인스턴스를 로드밸런서에서 일시 제외한다.\n4. 5분 내 p95가 임계치(1.0s) 아래로 내려오지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽을 분산한다.\n5. 정상화 후 느린 쿼리 로그를 분석해 근본 원인을 문서화하고 후속 최적화 티켓을 등록한다.\n"
+        }
+      ],
+      "final": "'로그인 응답이 느려요, 원인 확인해주세요' 진단 결과: 1) 모니터링: auth-service 상태=degraded, CPU 77.2% (알림 2건) · web-01 상태=healthy, CPU 37.4% (알림 0건) 2) 표준 절차: 'Runbook: 응답 지연(High Latency) 대응 절차'에 따라 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다. 지연이 특정 리전/인스턴스에 몰려 있으면 해당 인스턴스를 로드밸런서에서 일시 제외한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i05",
+      "subset": "aligned",
+      "query": "auth-service p95 지연이 2초를 넘었어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "high-latency",
+      "runbook_types": [
+        "high-latency"
+      ],
+      "type_ok": true,
+      "latency_s": 0.751,
+      "cost_usd": 0.000587,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "auth-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "auth-service",
+            "status": "degraded",
+            "cpu_percent": 82.0,
+            "memory_percent": 63.0,
+            "last_checked": "2026-10-20T09:42:00.406025",
+            "alerts": [
+              "p95 latency 2.4s (threshold 1.0s)",
+              "connection pool 92% used"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 33.7,
+            "memory_percent": 47.8,
+            "last_checked": "2026-10-20T09:42:00.406242",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 응답 지연(High Latency) 대응 절차\n\n## 대표 증상\n요청 자체는 성공하지만 응답 시간이 길어진다. p95/p99 지연시간이 임계치를 넘고, 커넥션 풀이 고갈되거나 느린 쿼리가 쌓이면서 사용자가 화면이 느리다고 체감한다. 키워드: 응답 지연, 느린 응답, latency, 커넥션 풀 고갈, 로그인이 느림.\n\n## 대응 절차\n1. get_monitoring_status로 p95 지연시간과 커넥션 풀 사용률을 확인한다.\n2. 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다.\n3. 지연이 특정 리전/인스턴스에 몰려 있으면 해당 인스턴스를 로드밸런서에서 일시 제외한다.\n4. 5분 내 p95가 임계치(1.0s) 아래로 내려오지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽을 분산한다.\n5. 정상화 후 느린 쿼리 로그를 분석해 근본 원인을 문서화하고 후속 최적화 티켓을 등록한다.\n"
+        }
+      ],
+      "final": "'auth-service p95 지연이 2초를 넘었어요' 진단 결과: 1) 모니터링: auth-service 상태=degraded, CPU 82.0% (알림 2건) · web-01 상태=healthy, CPU 33.7% (알림 0건) 2) 표준 절차: 'Runbook: 응답 지연(High Latency) 대응 절차'에 따라 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다. 지연이 특정 리전/인스턴스에 몰려 있으면 해당 인스턴스를 로드밸런서에서 일시 제외한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i06",
+      "subset": "aligned",
+      "query": "cache-service 힙 메모리가 한계에 도달했어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "memory-leak",
+      "runbook_types": [
+        "memory-leak"
+      ],
+      "type_ok": true,
+      "latency_s": 0.759,
+      "cost_usd": 0.000602,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "cache-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "cache-service",
+            "status": "degraded",
+            "cpu_percent": 45.9,
+            "memory_percent": 90.9,
+            "last_checked": "2026-10-20T09:42:01.156642",
+            "alerts": [
+              "memory usage climbing steadily over 6h",
+              "heap near limit"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 33.2,
+            "memory_percent": 47.6,
+            "last_checked": "2026-10-20T09:42:01.157105",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 메모리 누수(Memory Leak) 대응 절차\n\n## 대표 증상\n메모리 사용률이 시간이 지날수록 꾸준히 증가하고 재시작해도 다시 차오른다. 힙 사용량이 한계에 가까워지고 GC가 자주 돌며 결국 OOM으로 프로세스가 죽는다. 키워드: 메모리 누수, 메모리 증가, heap, OOM, GC 과다.\n\n## 대응 절차\n1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다.\n4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다.\n5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'cache-service 힙 메모리가 한계에 도달했어요' 진단 결과: 1) 모니터링: cache-service 상태=degraded, CPU 45.9% (알림 2건) · web-01 상태=healthy, CPU 33.2% (알림 0건) 2) 표준 절차: 'Runbook: 메모리 누수(Memory Leak) 대응 절차'에 따라 OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i07",
+      "subset": "aligned",
+      "query": "log-service /var/log 파티션이 꽉 찼어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "disk-full",
+      "runbook_types": [
+        "disk-full"
+      ],
+      "type_ok": true,
+      "latency_s": 0.748,
+      "cost_usd": 0.000597,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "log-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "log-service",
+            "status": "degraded",
+            "cpu_percent": 19.3,
+            "memory_percent": 34.6,
+            "last_checked": "2026-10-20T09:42:01.915577",
+            "alerts": [
+              "disk usage 95% on /var/log",
+              "disk space low"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 37.3,
+            "memory_percent": 49.7,
+            "last_checked": "2026-10-20T09:42:01.915790",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 디스크 용량 부족 대응 절차\n\n## 대표 증상\n디스크나 파티션 사용률이 90% 이상으로 차서 쓰기 작업이 실패하거나 경고가 발생한다. 로그·임시 파일·백업이 공간을 잠식하며, No space left on device 오류가 나타난다. 키워드: 디스크 부족, 디스크 가득, 용량 경고, /var/log 파티션.\n\n## 대응 절차\n1. get_monitoring_status와 서버 디스크 사용률을 확인해 임계 수준(90% 이상)인지 판단한다.\n2. 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n3. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다.\n4. 임시 조치로도 부족하면 볼륨을 확장하거나 추가 스토리지를 연결한다.\n5. 정상화 후 로그 보존 정책과 디스크 사용률 알림 임계값을 재검토해 조기에 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'log-service /var/log 파티션이 꽉 찼어요' 진단 결과: 1) 모니터링: log-service 상태=degraded, CPU 19.3% (알림 2건) · web-01 상태=healthy, CPU 37.3% (알림 0건) 2) 표준 절차: 'Runbook: 디스크 용량 부족 대응 절차'에 따라 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i08",
+      "subset": "aligned",
+      "query": "gateway-service 패킷 손실이 생기고 504 에러가 나요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "network-timeout",
+      "runbook_types": [
+        "network-timeout"
+      ],
+      "type_ok": true,
+      "latency_s": 0.746,
+      "cost_usd": 0.000613,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "gateway-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "gateway-service",
+            "status": "degraded",
+            "cpu_percent": 30.4,
+            "memory_percent": 45.2,
+            "last_checked": "2026-10-20T09:42:02.663184",
+            "alerts": [
+              "upstream timeout to payments-service (504)",
+              "network packet loss 3%"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 40.8,
+            "memory_percent": 51.4,
+            "last_checked": "2026-10-20T09:42:02.663942",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 네트워크 타임아웃 대응 절차\n\n## 대표 증상\n시스템 간 호출이 응답을 받지 못하고 시간 초과로 끊긴다. 게이트웨이의 504 Gateway Timeout, upstream 연결 끊김, 패킷 손실, DNS 해석 실패, 외부 API 호출 타임아웃이 나타난다. 키워드: 타임아웃, 504, 패킷 손실, 네트워크 단절, upstream.\n\n## 대응 절차\n1. get_monitoring_status로 어떤 시스템 간 호출에서 타임아웃이 발생하는지 확인한다.\n2. DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다.\n3. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다.\n4. 타임아웃 값이 너무 짧아 정상 응답도 실패로 처리되는 경우라면 임계값을 임시 상향해 2차 피해를 줄인다.\n5. 정상화 후 네트워크 경로 기록을 남기고, 재발 방지를 위해 헬스체크 주기와 재시도 정책을 재검토한다.\n"
+        }
+      ],
+      "final": "'gateway-service 패킷 손실이 생기고 504 에러가 나요' 진단 결과: 1) 모니터링: gateway-service 상태=degraded, CPU 30.4% (알림 2건) · web-01 상태=healthy, CPU 40.8% (알림 0건) 2) 표준 절차: 'Runbook: 네트워크 타임아웃 대응 절차'에 따라 DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i09",
+      "subset": "aligned",
+      "query": "payments-service 인스턴스 CPU 사용률이 90%를 넘었어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "cpu-spike",
+      "runbook_types": [
+        "cpu-spike"
+      ],
+      "type_ok": true,
+      "latency_s": 0.748,
+      "cost_usd": 0.000628,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "payments-service",
+            "status": "degraded",
+            "cpu_percent": 91.1,
+            "memory_percent": 55.0,
+            "last_checked": "2026-10-20T09:42:03.409186",
+            "alerts": [
+              "CPU 91% (threshold 80%)",
+              "payments-service-3 instance responding slow"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 39.8,
+            "memory_percent": 50.9,
+            "last_checked": "2026-10-20T09:42:03.409365",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: CPU 급증 대응 절차\n\n## 대표 증상\nCPU 사용률이 평소보다 급격히 높아지고 임계치(80%)를 넘어 지속된다. 특정 인스턴스가 연산 부하로 느려지고, 트래픽 증가·배포 직후·배치 중복 실행과 함께 나타나는 경우가 많다. 키워드: CPU 급증, CPU 100%, 연산 부하, 스로틀링, load average 상승.\n\n## 대응 절차\n1. get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.\n2. 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.\n3. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n4. 급증이 특정 배포 직후 시작됐다면 직전 배포를 롤백하고 원인 분석은 별도로 진행한다.\n5. 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드를 식별해 최적화 작업을 등록한다.\n"
+        }
+      ],
+      "final": "'payments-service 인스턴스 CPU 사용률이 90%를 넘었어요' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 91.1% (알림 2건) · web-01 상태=healthy, CPU 39.8% (알림 0건) 2) 표준 절차: 'Runbook: CPU 급증 대응 절차'에 따라 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "i10",
+      "subset": "aligned",
+      "query": "gateway-service 뒤쪽 upstream 연결이 끊기고 응답이 안 와요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "network-timeout",
+      "runbook_types": [
+        "network-timeout"
+      ],
+      "type_ok": true,
+      "latency_s": 0.74,
+      "cost_usd": 0.000643,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.35,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "gateway-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "gateway-service",
+            "status": "degraded",
+            "cpu_percent": 27.5,
+            "memory_percent": 43.8,
+            "last_checked": "2026-10-20T09:42:04.154117",
+            "alerts": [
+              "upstream timeout to payments-service (504)",
+              "network packet loss 3%"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 36.2,
+            "memory_percent": 49.1,
+            "last_checked": "2026-10-20T09:42:04.154238",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 네트워크 타임아웃 대응 절차\n\n## 대표 증상\n시스템 간 호출이 응답을 받지 못하고 시간 초과로 끊긴다. 게이트웨이의 504 Gateway Timeout, upstream 연결 끊김, 패킷 손실, DNS 해석 실패, 외부 API 호출 타임아웃이 나타난다. 키워드: 타임아웃, 504, 패킷 손실, 네트워크 단절, upstream.\n\n## 대응 절차\n1. get_monitoring_status로 어떤 시스템 간 호출에서 타임아웃이 발생하는지 확인한다.\n2. DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다.\n3. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다.\n4. 타임아웃 값이 너무 짧아 정상 응답도 실패로 처리되는 경우라면 임계값을 임시 상향해 2차 피해를 줄인다.\n5. 정상화 후 네트워크 경로 기록을 남기고, 재발 방지를 위해 헬스체크 주기와 재시도 정책을 재검토한다.\n"
+        }
+      ],
+      "final": "'gateway-service 뒤쪽 upstream 연결이 끊기고 응답이 안 와요' 진단 결과: 1) 모니터링: gateway-service 상태=degraded, CPU 27.5% (알림 2건) · web-01 상태=healthy, CPU 36.2% (알림 0건) 2) 표준 절차: 'Runbook: 네트워크 타임아웃 대응 절차'에 따라 DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "m01",
+      "subset": "multi",
+      "query": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "network-timeout",
+      "runbook_types": [
+        "network-timeout"
+      ],
+      "type_ok": true,
+      "latency_s": 0.74,
+      "cost_usd": 0.000749,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.35,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "gateway-service",
+        "payments-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "gateway-service",
+            "status": "degraded",
+            "cpu_percent": 37.1,
+            "memory_percent": 48.5,
+            "last_checked": "2026-10-20T09:42:04.896987",
+            "alerts": [
+              "upstream timeout to payments-service (504)",
+              "network packet loss 3%"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "payments-service",
+            "status": "degraded",
+            "cpu_percent": 97.0,
+            "memory_percent": 58.0,
+            "last_checked": "2026-10-20T09:42:04.896461",
+            "alerts": [
+              "CPU 91% (threshold 80%)",
+              "payments-service-3 instance responding slow"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 33.0,
+            "memory_percent": 47.5,
+            "last_checked": "2026-10-20T09:42:04.895103",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 네트워크 타임아웃 대응 절차\n\n## 대표 증상\n시스템 간 호출이 응답을 받지 못하고 시간 초과로 끊긴다. 게이트웨이의 504 Gateway Timeout, upstream 연결 끊김, 패킷 손실, DNS 해석 실패, 외부 API 호출 타임아웃이 나타난다. 키워드: 타임아웃, 504, 패킷 손실, 네트워크 단절, upstream.\n\n## 대응 절차\n1. get_monitoring_status로 어떤 시스템 간 호출에서 타임아웃이 발생하는지 확인한다.\n2. DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다.\n3. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다.\n4. 타임아웃 값이 너무 짧아 정상 응답도 실패로 처리되는 경우라면 임계값을 임시 상향해 2차 피해를 줄인다.\n5. 정상화 후 네트워크 경로 기록을 남기고, 재발 방지를 위해 헬스체크 주기와 재시도 정책을 재검토한다.\n"
+        }
+      ],
+      "final": "'gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요' 진단 결과: 1) 모니터링: gateway-service 상태=degraded, CPU 37.1% (알림 2건) · payments-service 상태=degraded, CPU 97.0% (알림 2건) · web-01 상태=healthy, CPU 33.0% (알림 0건) 2) 표준 절차: 'Runbook: 네트워크 타임아웃 대응 절차'에 따라 DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "m02",
+      "subset": "multi",
+      "query": "auth-service랑 log-service 둘 다 이상한데 로그 디스크가 꽉 찬 것 같아요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "disk-full",
+      "runbook_types": [
+        "disk-full"
+      ],
+      "type_ok": true,
+      "latency_s": 0.75,
+      "cost_usd": 0.000739,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "auth-service",
+        "log-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "auth-service",
+            "status": "degraded",
+            "cpu_percent": 80.4,
+            "memory_percent": 62.2,
+            "last_checked": "2026-10-20T09:42:05.637793",
+            "alerts": [
+              "p95 latency 2.4s (threshold 1.0s)",
+              "connection pool 92% used"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "log-service",
+            "status": "degraded",
+            "cpu_percent": 22.3,
+            "memory_percent": 36.1,
+            "last_checked": "2026-10-20T09:42:05.637866",
+            "alerts": [
+              "disk usage 95% on /var/log",
+              "disk space low"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 32.6,
+            "memory_percent": 47.3,
+            "last_checked": "2026-10-20T09:42:05.638643",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 디스크 용량 부족 대응 절차\n\n## 대표 증상\n디스크나 파티션 사용률이 90% 이상으로 차서 쓰기 작업이 실패하거나 경고가 발생한다. 로그·임시 파일·백업이 공간을 잠식하며, No space left on device 오류가 나타난다. 키워드: 디스크 부족, 디스크 가득, 용량 경고, /var/log 파티션.\n\n## 대응 절차\n1. get_monitoring_status와 서버 디스크 사용률을 확인해 임계 수준(90% 이상)인지 판단한다.\n2. 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n3. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다.\n4. 임시 조치로도 부족하면 볼륨을 확장하거나 추가 스토리지를 연결한다.\n5. 정상화 후 로그 보존 정책과 디스크 사용률 알림 임계값을 재검토해 조기에 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'auth-service랑 log-service 둘 다 이상한데 로그 디스크가 꽉 찬 것 같아요' 진단 결과: 1) 모니터링: auth-service 상태=degraded, CPU 80.4% (알림 2건) · log-service 상태=degraded, CPU 22.3% (알림 2건) · web-01 상태=healthy, CPU 32.6% (알림 0건) 2) 표준 절차: 'Runbook: 디스크 용량 부족 대응 절차'에 따라 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "m03",
+      "subset": "multi",
+      "query": "payments-service CPU 말고 cache-service 메모리 누수 쪽을 먼저 봐주세요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "memory-leak",
+      "runbook_types": [
+        "memory-leak"
+      ],
+      "type_ok": true,
+      "latency_s": 0.748,
+      "cost_usd": 0.000764,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "payments-service",
+        "cache-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "payments-service",
+            "status": "degraded",
+            "cpu_percent": 93.0,
+            "memory_percent": 56.0,
+            "last_checked": "2026-10-20T09:42:06.389477",
+            "alerts": [
+              "CPU 91% (threshold 80%)",
+              "payments-service-3 instance responding slow"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "cache-service",
+            "status": "degraded",
+            "cpu_percent": 45.0,
+            "memory_percent": 90.5,
+            "last_checked": "2026-10-20T09:42:06.387964",
+            "alerts": [
+              "memory usage climbing steadily over 6h",
+              "heap near limit"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 33.5,
+            "memory_percent": 47.7,
+            "last_checked": "2026-10-20T09:42:06.388796",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 메모리 누수(Memory Leak) 대응 절차\n\n## 대표 증상\n메모리 사용률이 시간이 지날수록 꾸준히 증가하고 재시작해도 다시 차오른다. 힙 사용량이 한계에 가까워지고 GC가 자주 돌며 결국 OOM으로 프로세스가 죽는다. 키워드: 메모리 누수, 메모리 증가, heap, OOM, GC 과다.\n\n## 대응 절차\n1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다.\n4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다.\n5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'payments-service CPU 말고 cache-service 메모리 누수 쪽을 먼저 봐주세요' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 93.0% (알림 2건) · cache-service 상태=degraded, CPU 45.0% (알림 2건) · web-01 상태=healthy, CPU 33.5% (알림 0건) 2) 표준 절차: 'Runbook: 메모리 누수(Memory Leak) 대응 절차'에 따라 OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s01",
+      "subset": "symptom",
+      "query": "auth-service DB 연결이 전부 실패하고 있어요, 데이터베이스가 죽은 것 같아요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "db-down",
+      "runbook_types": [
+        "db-down"
+      ],
+      "type_ok": true,
+      "latency_s": 0.749,
+      "cost_usd": 0.000624,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "auth-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "auth-service",
+            "status": "degraded",
+            "cpu_percent": 85.3,
+            "memory_percent": 64.6,
+            "last_checked": "2026-10-20T09:42:07.135324",
+            "alerts": [
+              "p95 latency 2.4s (threshold 1.0s)",
+              "connection pool 92% used"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 41.2,
+            "memory_percent": 51.6,
+            "last_checked": "2026-10-20T09:42:07.135555",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: DB Down 대응 절차\n\n## 대표 증상\n데이터베이스에 연결할 수 없거나 쿼리가 전부 실패한다. 애플리케이션 로그에 connection refused, too many connections, could not connect to server 같은 DB 연결 오류가 쏟아지고, 리플리케이션이 끊기거나 primary 노드가 응답하지 않는다. 키워드: DB 장애, 데이터베이스 다운, DB 연결 실패, failover.\n\n## 대응 절차\n1. 모니터링 알람으로 장애를 즉시 인지한다 (get_monitoring_status로 현재 상태 확인).\n2. 커넥션 풀/리플리케이션 상태를 점검하고 필요 시 failover 노드로 전환한다.\n3. 서비스 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화한다.\n"
+        }
+      ],
+      "final": "'auth-service DB 연결이 전부 실패하고 있어요, 데이터베이스가 죽은 것 같아요' 진단 결과: 1) 모니터링: auth-service 상태=degraded, CPU 85.3% (알림 2건) · web-01 상태=healthy, CPU 41.2% (알림 0건) 2) 표준 절차: 'Runbook: DB Down 대응 절차'에 따라 커넥션 풀/리플리케이션 상태를 점검하고 필요 시 failover 노드로 전환한다. 서비스 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s02",
+      "subset": "symptom",
+      "query": "payments-service에서 DB connection refused 에러가 쏟아져요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "db-down",
+      "runbook_types": [
+        "db-down"
+      ],
+      "type_ok": true,
+      "latency_s": 0.749,
+      "cost_usd": 0.00063,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "payments-service",
+            "status": "degraded",
+            "cpu_percent": 93.8,
+            "memory_percent": 56.4,
+            "last_checked": "2026-10-20T09:42:07.884510",
+            "alerts": [
+              "CPU 91% (threshold 80%)",
+              "payments-service-3 instance responding slow"
+            ]
+          }
+        },
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 31.6,
+            "memory_percent": 46.8,
+            "last_checked": "2026-10-20T09:42:07.884646",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: DB Down 대응 절차\n\n## 대표 증상\n데이터베이스에 연결할 수 없거나 쿼리가 전부 실패한다. 애플리케이션 로그에 connection refused, too many connections, could not connect to server 같은 DB 연결 오류가 쏟아지고, 리플리케이션이 끊기거나 primary 노드가 응답하지 않는다. 키워드: DB 장애, 데이터베이스 다운, DB 연결 실패, failover.\n\n## 대응 절차\n1. 모니터링 알람으로 장애를 즉시 인지한다 (get_monitoring_status로 현재 상태 확인).\n2. 커넥션 풀/리플리케이션 상태를 점검하고 필요 시 failover 노드로 전환한다.\n3. 서비스 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화한다.\n"
+        }
+      ],
+      "final": "'payments-service에서 DB connection refused 에러가 쏟아져요' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 93.8% (알림 2건) · web-01 상태=healthy, CPU 31.6% (알림 0건) 2) 표준 절차: 'Runbook: DB Down 대응 절차'에 따라 커넥션 풀/리플리케이션 상태를 점검하고 필요 시 failover 노드로 전환한다. 서비스 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s03",
+      "subset": "symptom",
+      "query": "web-01 서버 디스크 사용률 경고가 떴어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "disk-full",
+      "runbook_types": [
+        "disk-full"
+      ],
+      "type_ok": true,
+      "latency_s": 0.744,
+      "cost_usd": 0.000512,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 34.2,
+            "memory_percent": 48.1,
+            "last_checked": "2026-10-20T09:42:08.634166",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 디스크 용량 부족 대응 절차\n\n## 대표 증상\n디스크나 파티션 사용률이 90% 이상으로 차서 쓰기 작업이 실패하거나 경고가 발생한다. 로그·임시 파일·백업이 공간을 잠식하며, No space left on device 오류가 나타난다. 키워드: 디스크 부족, 디스크 가득, 용량 경고, /var/log 파티션.\n\n## 대응 절차\n1. get_monitoring_status와 서버 디스크 사용률을 확인해 임계 수준(90% 이상)인지 판단한다.\n2. 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n3. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다.\n4. 임시 조치로도 부족하면 볼륨을 확장하거나 추가 스토리지를 연결한다.\n5. 정상화 후 로그 보존 정책과 디스크 사용률 알림 임계값을 재검토해 조기에 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'web-01 서버 디스크 사용률 경고가 떴어요' 진단 결과: 1) 모니터링: web-01 상태=healthy, CPU 34.2% (알림 0건) 2) 표준 절차: 'Runbook: 디스크 용량 부족 대응 절차'에 따라 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s04",
+      "subset": "symptom",
+      "query": "web-01에서 외부 API 호출이 계속 타임아웃 나요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "network-timeout",
+      "runbook_types": [
+        "network-timeout"
+      ],
+      "type_ok": true,
+      "latency_s": 0.741,
+      "cost_usd": 0.000523,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 41.8,
+            "memory_percent": 51.9,
+            "last_checked": "2026-10-20T09:42:09.376720",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 네트워크 타임아웃 대응 절차\n\n## 대표 증상\n시스템 간 호출이 응답을 받지 못하고 시간 초과로 끊긴다. 게이트웨이의 504 Gateway Timeout, upstream 연결 끊김, 패킷 손실, DNS 해석 실패, 외부 API 호출 타임아웃이 나타난다. 키워드: 타임아웃, 504, 패킷 손실, 네트워크 단절, upstream.\n\n## 대응 절차\n1. get_monitoring_status로 어떤 시스템 간 호출에서 타임아웃이 발생하는지 확인한다.\n2. DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다.\n3. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다.\n4. 타임아웃 값이 너무 짧아 정상 응답도 실패로 처리되는 경우라면 임계값을 임시 상향해 2차 피해를 줄인다.\n5. 정상화 후 네트워크 경로 기록을 남기고, 재발 방지를 위해 헬스체크 주기와 재시도 정책을 재검토한다.\n"
+        }
+      ],
+      "final": "'web-01에서 외부 API 호출이 계속 타임아웃 나요' 진단 결과: 1) 모니터링: web-01 상태=healthy, CPU 41.8% (알림 0건) 2) 표준 절차: 'Runbook: 네트워크 타임아웃 대응 절차'에 따라 DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s05",
+      "subset": "symptom",
+      "query": "web-01 메모리가 재시작 후에도 계속 증가해요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "memory-leak",
+      "runbook_types": [
+        "memory-leak"
+      ],
+      "type_ok": true,
+      "latency_s": 0.752,
+      "cost_usd": 0.000527,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.36,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 31.7,
+            "memory_percent": 46.8,
+            "last_checked": "2026-10-20T09:42:10.118577",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: 메모리 누수(Memory Leak) 대응 절차\n\n## 대표 증상\n메모리 사용률이 시간이 지날수록 꾸준히 증가하고 재시작해도 다시 차오른다. 힙 사용량이 한계에 가까워지고 GC가 자주 돌며 결국 OOM으로 프로세스가 죽는다. 키워드: 메모리 누수, 메모리 증가, heap, OOM, GC 과다.\n\n## 대응 절차\n1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다.\n4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다.\n5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다.\n"
+        }
+      ],
+      "final": "'web-01 메모리가 재시작 후에도 계속 증가해요' 진단 결과: 1) 모니터링: web-01 상태=healthy, CPU 31.7% (알림 0건) 2) 표준 절차: 'Runbook: 메모리 누수(Memory Leak) 대응 절차'에 따라 OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "s06",
+      "subset": "symptom",
+      "query": "web-01 CPU가 갑자기 100% 가까이 튀었어요",
+      "kind": "incident",
+      "route": "incident",
+      "route_ok": true,
+      "expected_incident_type": "cpu-spike",
+      "runbook_types": [
+        "cpu-spike"
+      ],
+      "type_ok": true,
+      "latency_s": 0.734,
+      "cost_usd": 0.000518,
+      "validation_attempts": 2,
+      "retry_count": 0,
+      "parallel_elapsed": 0.35,
+      "ungrounded_numbers": [],
+      "research_targets": [
+        "web-01"
+      ],
+      "collected": [
+        {
+          "source": "monitoring",
+          "data": {
+            "system_name": "web-01",
+            "status": "healthy",
+            "cpu_percent": 37.7,
+            "memory_percent": 49.8,
+            "last_checked": "2026-10-20T09:42:10.868145",
+            "alerts": []
+          }
+        },
+        {
+          "source": "runbook",
+          "data": "# Runbook: CPU 급증 대응 절차\n\n## 대표 증상\nCPU 사용률이 평소보다 급격히 높아지고 임계치(80%)를 넘어 지속된다. 특정 인스턴스가 연산 부하로 느려지고, 트래픽 증가·배포 직후·배치 중복 실행과 함께 나타나는 경우가 많다. 키워드: CPU 급증, CPU 100%, 연산 부하, 스로틀링, load average 상승.\n\n## 대응 절차\n1. get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.\n2. 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.\n3. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n4. 급증이 특정 배포 직후 시작됐다면 직전 배포를 롤백하고 원인 분석은 별도로 진행한다.\n5. 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드를 식별해 최적화 작업을 등록한다.\n"
+        }
+      ],
+      "final": "'web-01 CPU가 갑자기 100% 가까이 튀었어요' 진단 결과: 1) 모니터링: web-01 상태=healthy, CPU 37.7% (알림 0건) 2) 표준 절차: 'Runbook: CPU 급증 대응 절차'에 따라 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요."
+    },
+    {
+      "id": "c01",
+      "kind": "chat",
+      "query": "안녕, 너는 누구야?",
+      "route": "chat",
+      "route_ok": true,
+      "latency_s": 0.003,
+      "cost_usd": 3e-06,
+      "final": "안녕하세요! 무엇을 도와드릴까요?"
+    },
+    {
+      "id": "c02",
+      "kind": "chat",
+      "query": "오늘 점심 메뉴 추천해줘",
+      "route": "chat",
+      "route_ok": true,
+      "latency_s": 0.003,
+      "cost_usd": 3e-06,
+      "final": "안녕하세요! 무엇을 도와드릴까요?"
+    },
+    {
+      "id": "c03",
+      "kind": "chat",
+      "query": "제 이름은 민수입니다",
+      "route": "chat",
+      "route_ok": true,
+      "latency_s": 0.002,
+      "cost_usd": 3e-06,
+      "final": "안녕하세요, 민수님! 무엇을 도와드릴까요?"
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "summary": {
+    "set": "holdout",
+    "embedder": "openai:text-embedding-3-small",
+    "n": 12,
+    "chunks": 34,
+    "keyword_accuracy": 0.5,
+    "rag_accuracy": 0.8333,
+    "by_subset": {
+      "aligned": {
+        "keyword": 1.0,
+        "rag": 1.0
+      },
+      "multi": {
+        "keyword": 0.0,
+        "rag": 1.0
+      },
+      "symptom": {
+        "keyword": 0.2,
+        "rag": 0.6
+      }
+    },
+    "rag_fallbacks": 0,
+    "index_build_s": 0.001,
+    "rag_classify_mean_ms": 260.0,
+    "embedding_usage": {
+      "api_calls": 12,
+      "tokens": 328,
+      "cache_hits": 42
+    },
+    "embedding_cost_usd": 6.56e-06
+  },
+  "rows": [
+    {
+      "id": "h01",
+      "subset": "aligned",
+      "expected": "memory-leak",
+      "keyword": "memory-leak",
+      "rag": "memory-leak",
+      "rag_method": "rag",
+      "rag_score": 0.5047,
+      "candidates": [
+        {
+          "incident_type": "memory-leak",
+          "score": 0.5047
+        },
+        {
+          "incident_type": "cpu-spike",
+          "score": 0.3332
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.323
+        }
+      ]
+    },
+    {
+      "id": "h02",
+      "subset": "aligned",
+      "expected": "cpu-spike",
+      "keyword": "cpu-spike",
+      "rag": "cpu-spike",
+      "rag_method": "rag",
+      "rag_score": 0.399,
+      "candidates": [
+        {
+          "incident_type": "cpu-spike",
+          "score": 0.399
+        },
+        {
+          "incident_type": "disk-full",
+          "score": 0.3756
+        },
+        {
+          "incident_type": "high-latency",
+          "score": 0.3487
+        }
+      ]
+    },
+    {
+      "id": "h03",
+      "subset": "aligned",
+      "expected": "disk-full",
+      "keyword": "disk-full",
+      "rag": "disk-full",
+      "rag_method": "rag",
+      "rag_score": 0.4883,
+      "candidates": [
+        {
+          "incident_type": "disk-full",
+          "score": 0.4883
+        },
+        {
+          "incident_type": "memory-leak",
+          "score": 0.3701
+        },
+        {
+          "incident_type": "db-down",
+          "score": 0.3265
+        }
+      ]
+    },
+    {
+      "id": "h04",
+      "subset": "aligned",
+      "expected": "high-latency",
+      "keyword": "high-latency",
+      "rag": "high-latency",
+      "rag_method": "rag",
+      "rag_score": 0.3666,
+      "candidates": [
+        {
+          "incident_type": "high-latency",
+          "score": 0.3666
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.3614
+        },
+        {
+          "incident_type": "db-down",
+          "score": 0.2749
+        }
+      ]
+    },
+    {
+      "id": "h05",
+      "subset": "aligned",
+      "expected": "network-timeout",
+      "keyword": "network-timeout",
+      "rag": "network-timeout",
+      "rag_method": "rag",
+      "rag_score": 0.4187,
+      "candidates": [
+        {
+          "incident_type": "network-timeout",
+          "score": 0.4187
+        },
+        {
+          "incident_type": "high-latency",
+          "score": 0.3618
+        },
+        {
+          "incident_type": "db-down",
+          "score": 0.3468
+        }
+      ]
+    },
+    {
+      "id": "h06",
+      "subset": "multi",
+      "expected": "memory-leak",
+      "keyword": "high-latency",
+      "rag": "memory-leak",
+      "rag_method": "rag",
+      "rag_score": 0.384,
+      "candidates": [
+        {
+          "incident_type": "memory-leak",
+          "score": 0.384
+        },
+        {
+          "incident_type": "disk-full",
+          "score": 0.3246
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.3133
+        }
+      ]
+    },
+    {
+      "id": "h07",
+      "subset": "multi",
+      "expected": "network-timeout",
+      "keyword": "cpu-spike",
+      "rag": "network-timeout",
+      "rag_method": "rag",
+      "rag_score": 0.4445,
+      "candidates": [
+        {
+          "incident_type": "network-timeout",
+          "score": 0.4445
+        },
+        {
+          "incident_type": "db-down",
+          "score": 0.3407
+        },
+        {
+          "incident_type": "cpu-spike",
+          "score": 0.3143
+        }
+      ]
+    },
+    {
+      "id": "h08",
+      "subset": "symptom",
+      "expected": "db-down",
+      "keyword": "db-down",
+      "rag": "db-down",
+      "rag_method": "rag",
+      "rag_score": 0.4935,
+      "candidates": [
+        {
+          "incident_type": "db-down",
+          "score": 0.4935
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.4005
+        },
+        {
+          "incident_type": "disk-full",
+          "score": 0.3571
+        }
+      ]
+    },
+    {
+      "id": "h09",
+      "subset": "symptom",
+      "expected": "disk-full",
+      "keyword": "high-latency",
+      "rag": "disk-full",
+      "rag_method": "rag",
+      "rag_score": 0.3723,
+      "candidates": [
+        {
+          "incident_type": "disk-full",
+          "score": 0.3723
+        },
+        {
+          "incident_type": "high-latency",
+          "score": 0.3721
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.2962
+        }
+      ]
+    },
+    {
+      "id": "h10",
+      "subset": "symptom",
+      "expected": "high-latency",
+      "keyword": "db-down",
+      "rag": "network-timeout",
+      "rag_method": "rag",
+      "rag_score": 0.3661,
+      "candidates": [
+        {
+          "incident_type": "network-timeout",
+          "score": 0.3661
+        },
+        {
+          "incident_type": "disk-full",
+          "score": 0.353
+        },
+        {
+          "incident_type": "memory-leak",
+          "score": 0.3397
+        }
+      ]
+    },
+    {
+      "id": "h11",
+      "subset": "symptom",
+      "expected": "network-timeout",
+      "keyword": "cpu-spike",
+      "rag": "high-latency",
+      "rag_method": "rag",
+      "rag_score": 0.3705,
+      "candidates": [
+        {
+          "incident_type": "high-latency",
+          "score": 0.3705
+        },
+        {
+          "incident_type": "network-timeout",
+          "score": 0.3474
+        },
+        {
+          "incident_type": "cpu-spike",
+          "score": 0.3215
+        }
+      ]
+    },
+    {
+      "id": "h12",
+      "subset": "symptom",
+      "expected": "memory-leak",
+      "keyword": "disk-full",
+      "rag": "memory-leak",
+      "rag_method": "rag",
+      "rag_score": 0.4841,
+      "candidates": [
+        {
+          "incident_type": "memory-leak",
+          "score": 0.4841
+        },
+        {
+          "incident_type": "disk-full",
+          "score": 0.4176
+        },
+        {
+          "incident_type": "cpu-spike",
+          "score": 0.3537
+        }
+      ]
+    }
+  ]
+}
